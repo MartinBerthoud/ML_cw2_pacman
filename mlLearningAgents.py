@@ -162,8 +162,9 @@ class QLearnAgent(Agent):
         Returns:
             Q(state, action)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        # Remember: self.q_values is a nested dictionary of the form {state: {action: (q-value, count)}}
+        return self.q_values[hash(state)][action][0]
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
@@ -265,6 +266,9 @@ class QLearnAgent(Agent):
         Returns:
             The action to take
         """
+
+        # TODO: Initialise state action pairs to self.q_values if we have not encountered that state yet
+
         # The data we have about the state of the game
         legal = state.getLegalPacmanActions()
         if Directions.STOP in legal:
