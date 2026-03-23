@@ -176,8 +176,14 @@ class QLearnAgent(Agent):
         Returns:
             q_value: the maximum estimated Q-value attainable from the state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        maximum = self.q_values[hash(state)]["North"][0]
+        
+        for action in self.q_values[hash(state)]:
+            maximum = max(maximum, self.q_values[action][0])
+
+        return maximum
+
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
@@ -247,8 +253,17 @@ class QLearnAgent(Agent):
         Returns:
             The exploration value
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        #TODO: confirm with Cora
+        #Maybe put these parameters as attributes of the Agent class?
+
+        exploration_boundary = 10
+        optimistic_reward = 10
+
+        if counts < exploration_boundary:
+            return optimistic_reward
+        
+        return utility
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
