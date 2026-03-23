@@ -104,6 +104,9 @@ class QLearnAgent(Agent):
         # Count the number of games we have played
         self.episodesSoFar = 0
 
+        # Nested dictionary of the form {state: {action: (q-value, count)}}
+        self.q_values = {}
+
     # Accessor functions for the variable episodesSoFar controlling learning
     def incrementEpisodesSoFar(self):
         self.episodesSoFar += 1
