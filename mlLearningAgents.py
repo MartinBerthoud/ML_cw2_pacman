@@ -47,8 +47,30 @@ class GameStateFeatures:
             state: A given game state object
         """
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        self.data = state.data
+
+    def __eq__(self, other):
+        """
+        Allows two states to be compared.
+        """
+        return (hasattr(other, 'data') and 
+        self.data.agentStates == other.data.agentStates and
+        self.data.capsules == other.data.capsules and
+        self.data.food == other.data.food)
+
+    def __hash__(self):
+        """
+        Allows states to be keys of dictionaries.
+        """
+        for i, state in enumerate(self.data.agentStates):
+            try:
+                int(hash(state))
+            except TypeError as e:
+                print(e)
+                # hash(state)
+        return int((hash(tuple(self.data.agentStates)) +
+                    13 * hash(self.data.food) + 113 * hash(tuple(self.data.capsules))) % 1048575)
+
 
 
 class QLearnAgent(Agent):
