@@ -146,8 +146,8 @@ class QLearnAgent(Agent):
         Returns:
             The reward assigned for the given trajectory
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        return endState.getScore() - startState.getScore()
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
@@ -164,7 +164,7 @@ class QLearnAgent(Agent):
         """
 
         # Remember: self.q_values is a nested dictionary of the form {state: {action: (q-value, count)}}
-        return self.q_values[hash(state)][action][0]
+        return self.q_values[hash(state)][str(action)][0]
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
