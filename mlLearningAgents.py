@@ -210,8 +210,8 @@ class QLearnAgent(Agent):
             state: Starting state
             action: Action taken
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # WARNING: ensure the existence of each state action pair in q_values is confirmed before calling
+        self.q_values[hash(state)][str(action)][1] += 1 
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
@@ -226,8 +226,8 @@ class QLearnAgent(Agent):
         Returns:
             Number of times that the action has been taken in a given state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # WARNING: ensure the existence of each state action pair in q_values is confirmed before calling
+        return self.q_values[hash(state)][str(action)][1]
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
