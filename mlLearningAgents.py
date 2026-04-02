@@ -79,7 +79,7 @@ class QLearnAgent(Agent):
                  alpha: float = 0.2,
                  epsilon: float = 0.05,
                  gamma: float = 0.8,
-                 maxAttempts: int = 15,
+                 maxAttempts: int = 3,
                  numTraining: int = 10):
         """
         These values are either passed from the command line (using -a alpha=0.5,...)
