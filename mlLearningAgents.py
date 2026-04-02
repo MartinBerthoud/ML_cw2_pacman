@@ -105,7 +105,7 @@ class QLearnAgent(Agent):
         self.episodesSoFar = 0
 
         # Parameter for the exploration function
-        self.optimistic_reward = 1000
+        self.optimistic_reward = 400
 
         # Nested dictionary of the form {state: {action: q-value}}
         self.q_values = {}
@@ -113,6 +113,7 @@ class QLearnAgent(Agent):
         # Nested dictionary of the form {state: {action: count}}
         self.counts = {}
 
+        # Variables holding parameters to be able to learn
         self.previous_state = None
         self.previous_action = None
 
@@ -202,7 +203,7 @@ class QLearnAgent(Agent):
               reward: float,
               nextState: GameStateFeatures):
         """
-        Performs a Q-learning update according to the equation defined in class
+        Performs a Q-learning update equation 
 
         Args:
             state: the initial state
@@ -211,9 +212,12 @@ class QLearnAgent(Agent):
             reward: the reward received on this trajectory
         """
 
+        #Implement equation
         q_value = self.q_values[hash(state)][str(action)]
         update = self.alpha * (reward + self.gamma * self.maxQValue(nextState) - q_value)
         self.q_values[hash(state)][str(action)] = q_value + update
+
+        #Increment count
         self.updateCount(state, action)
 
     # WARNING: You will be tested on the functionality of this method
@@ -228,7 +232,7 @@ class QLearnAgent(Agent):
             state: Starting state
             action: Action taken
         """
-        # WARNING: ensure the existence of each state action pair in q_values is confirmed before calling
+
         self.counts[hash(state)][str(action)] += 1 
 
     # WARNING: You will be tested on the functionality of this method
@@ -244,7 +248,7 @@ class QLearnAgent(Agent):
         Returns:
             Number of times that the action has been taken in a given state
         """
-        # WARNING: ensure the existence of each state action pair in q_values is confirmed before calling
+    
         return self.counts[hash(state)][str(action)]
 
     # WARNING: You will be tested on the functionality of this method
@@ -283,18 +287,15 @@ class QLearnAgent(Agent):
             The action to take
         """
 
-        all_actions = ["North", "South", "East", "West"]
-
         # The data we have about the state of the game
         legal = state.getLegalPacmanActions()
         if Directions.STOP in legal:
             legal.remove(Directions.STOP)
 
+        all_actions = ["North", "South", "East", "West"]
         stateFeatures = GameStateFeatures(state)
 
-
         # Initialise state action pairs of self.q_values if we have not encountered that state yet
-
         if self.q_values.get(hash(stateFeatures)) == None:
             self.q_values[hash(stateFeatures)] = {}
             self.counts[hash(stateFeatures)] = {}
@@ -302,21 +303,12 @@ class QLearnAgent(Agent):
                 self.q_values[hash(stateFeatures)][action] = 0
                 self.counts[hash(stateFeatures)][action] = 0
 
-
-        # learn
+        # Learn
         if self.previous_action != None:
             reward = self.computeReward(self.previous_state, state)
             self.learn(GameStateFeatures(self.previous_state), self.previous_action, reward, stateFeatures)
 
-        # logging to help you understand the inputs, feel free to remove
-        '''print("Legal moves: ", legal)
-        print("Pacman position: ", state.getPacmanPosition())
-        print("Ghost positions:", state.getGhostPositions())
-        print("Food locations: ")
-        print(state.getFood())
-        print("Score: ", state.getScore())'''
-
-
+        # Choose the next action
         state_q_values = self.q_values[hash(stateFeatures)]
         state_counts = self.counts[hash(stateFeatures)]
 
@@ -329,7 +321,7 @@ class QLearnAgent(Agent):
                 maximum = exploration_value
                 action_returned = action
 
-
+        # Update variables
         self.previous_state = state
         self.previous_action = action_returned
 
@@ -345,11 +337,9 @@ class QLearnAgent(Agent):
         """
         print(f"Game {self.getEpisodesSoFar()} just ended!")
 
+        # Initialise state action pairs of self.q_values if we have not encountered that state yet
         all_actions = ["North", "South", "East", "West"]
         stateFeatures = GameStateFeatures(state)
-
-
-        # Initialise state action pairs of self.q_values if we have not encountered that state yet
 
         if self.q_values.get(hash(stateFeatures)) == None:
             self.q_values[hash(stateFeatures)] = {}
@@ -358,7 +348,7 @@ class QLearnAgent(Agent):
                 self.q_values[hash(stateFeatures)][action] = 0
                 self.counts[hash(stateFeatures)][action] = 0
 
-
+        # Learn from winning or losing the game
         reward = self.computeReward(self.previous_state, state)
         self.learn(GameStateFeatures(self.previous_state), self.previous_action, reward, stateFeatures)
 
