@@ -79,7 +79,7 @@ class QLearnAgent(Agent):
                  alpha: float = 0.2,
                  epsilon: float = 0.05,
                  gamma: float = 0.8,
-                 maxAttempts: int = 30,
+                 maxAttempts: int = 15,
                  numTraining: int = 10):
         """
         These values are either passed from the command line (using -a alpha=0.5,...)
@@ -105,7 +105,7 @@ class QLearnAgent(Agent):
         self.episodesSoFar = 0
 
         # Parameter for the exploration function
-        self.optimistic_reward = 100
+        self.optimistic_reward = 1000
 
         # Nested dictionary of the form {state: {action: q-value}}
         self.q_values = {}
@@ -344,6 +344,23 @@ class QLearnAgent(Agent):
             state: the final game state
         """
         print(f"Game {self.getEpisodesSoFar()} just ended!")
+
+        all_actions = ["North", "South", "East", "West"]
+        stateFeatures = GameStateFeatures(state)
+
+
+        # Initialise state action pairs of self.q_values if we have not encountered that state yet
+
+        if self.q_values.get(hash(stateFeatures)) == None:
+            self.q_values[hash(stateFeatures)] = {}
+            self.counts[hash(stateFeatures)] = {}
+            for action in all_actions:
+                self.q_values[hash(stateFeatures)][action] = 0
+                self.counts[hash(stateFeatures)][action] = 0
+
+
+        reward = self.computeReward(self.previous_state, state)
+        self.learn(GameStateFeatures(self.previous_state), self.previous_action, reward, stateFeatures)
 
         # Keep track of the number of games played, and set learning
         # parameters to zero when we are done with the pre-set number
