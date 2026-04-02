@@ -106,10 +106,12 @@ class QLearnAgent(Agent):
 
         #parameters for the exploration function
         self.exploration_boundary = 10
-        self.optimistic_reward = 10
+        self.optimistic_reward = 100
 
-        # Nested dictionary of the form {state: {action: (q-value, count)}}
+        # Nested dictionary of the form {state: {action: q-value}}
         self.q_values = {}
+        # Nested dictionary of the form {state: {action: count}}
+        self.counts = {}
 
         self.previous_state = None
         self.previous_action = None
@@ -170,8 +172,7 @@ class QLearnAgent(Agent):
             Q(state, action)
         """
 
-        # Remember: self.q_values is a nested dictionary of the form {state: {action: (q-value, count)}}
-        return self.q_values[hash(state)][str(action)][0]
+        return self.q_values[hash(state)][str(action)]
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
@@ -184,10 +185,11 @@ class QLearnAgent(Agent):
             q_value: the maximum estimated Q-value attainable from the state
         """
 
-        maximum = self.q_values[hash(state)]["North"][0]
+        action = random.choice(list(self.q_values[hash(state)].keys()))
+        maximum = self.q_values[hash(state)][action]
         
         for action in self.q_values[hash(state)]:
-            maximum = max(maximum, self.q_values[action][0])
+            maximum = max(maximum, self.q_values[hash(state)][action])
 
         return maximum
 
@@ -209,9 +211,9 @@ class QLearnAgent(Agent):
             reward: the reward received on this trajectory
         """
 
-        q_value = self.q_values[hash(state)][str(action)][0]
+        q_value = self.q_values[hash(state)][str(action)]
         update = self.alpha * (reward + self.gamma * self.maxQValue(nextState) - q_value)
-        self.q_values[hash(state)][str(action)][0] = q_value + update
+        self.q_values[hash(state)][str(action)] = q_value + update
         self.updateCount(state, action)
 
     # WARNING: You will be tested on the functionality of this method
@@ -227,7 +229,7 @@ class QLearnAgent(Agent):
             action: Action taken
         """
         # WARNING: ensure the existence of each state action pair in q_values is confirmed before calling
-        self.q_values[hash(state)][str(action)][1] += 1 
+        self.counts[hash(state)][str(action)] += 1 
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
@@ -243,7 +245,7 @@ class QLearnAgent(Agent):
             Number of times that the action has been taken in a given state
         """
         # WARNING: ensure the existence of each state action pair in q_values is confirmed before calling
-        return self.q_values[hash(state)][str(action)][1]
+        return self.counts[hash(state)][str(action)]
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
@@ -293,8 +295,10 @@ class QLearnAgent(Agent):
 
         if self.q_values.get(hash(stateFeatures)) == None:
             self.q_values[hash(stateFeatures)] = {}
+            self.counts[hash(stateFeatures)] = {}
             for action in legal:
-                self.q_values[hash(stateFeatures)][str(action)] = (0, 0)
+                self.q_values[hash(stateFeatures)][str(action)] = 0
+                self.counts[hash(stateFeatures)][str(action)] = 0
 
 
         # learn
@@ -312,12 +316,13 @@ class QLearnAgent(Agent):
 
 
         state_q_values = self.q_values[hash(stateFeatures)]
+        state_counts = self.counts[hash(stateFeatures)]
 
         action_returned = random.choice(legal)
-        maximum = self.explorationFn (state_q_values[str(action_returned)][0], state_q_values[str(action_returned)][1])
+        maximum = self.explorationFn (state_q_values[str(action_returned)], state_counts[str(action_returned)])
         
         for action in legal:
-            exploration_value = self.explorationFn (state_q_values[str(action)][0], state_q_values[str(action)][1])
+            exploration_value = self.explorationFn (state_q_values[str(action)], state_counts[str(action)])
             if maximum < exploration_value:
                 maximum = exploration_value
                 action_returned = action
