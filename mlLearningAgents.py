@@ -197,7 +197,7 @@ class QLearnAgent(Agent):
               reward: float,
               nextState: GameStateFeatures):
         """
-        Performs a Q-learning update
+        Performs a Q-learning update according to the equation defined in class
 
         Args:
             state: the initial state
@@ -205,8 +205,11 @@ class QLearnAgent(Agent):
             nextState: the resulting state
             reward: the reward received on this trajectory
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        q_value = self.q_values[hash(state)][str(action)][0]
+        update = self.alpha * (reward + self.gamma * self.maxQValue(nextState) - q_value)
+        self.q_values[hash(state)][str(action)][0] = q_value + update
+        self.updateCount(state, action)
 
     # WARNING: You will be tested on the functionality of this method
     # DO NOT change the function signature
