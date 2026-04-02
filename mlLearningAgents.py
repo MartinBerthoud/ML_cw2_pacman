@@ -104,6 +104,10 @@ class QLearnAgent(Agent):
         # Count the number of games we have played
         self.episodesSoFar = 0
 
+        #parameters for the exploration function
+        self.exploration_boundary = 10
+        self.optimistic_reward = 10
+
         # Nested dictionary of the form {state: {action: (q-value, count)}}
         self.q_values = {}
 
@@ -257,11 +261,8 @@ class QLearnAgent(Agent):
         #TODO: confirm with Cora
         #Maybe put these parameters as attributes of the Agent class?
 
-        exploration_boundary = 10
-        optimistic_reward = 10
-
-        if counts < exploration_boundary:
-            return optimistic_reward
+        if counts < self.exploration_boundary:
+            return self.optimistic_reward
         
         return utility
 
