@@ -111,6 +111,9 @@ class QLearnAgent(Agent):
         # Nested dictionary of the form {state: {action: (q-value, count)}}
         self.q_values = {}
 
+        self.previous_state = None
+        self.previous_action = None
+
     # Accessor functions for the variable episodesSoFar controlling learning
     def incrementEpisodesSoFar(self):
         self.episodesSoFar += 1
@@ -251,8 +254,6 @@ class QLearnAgent(Agent):
         Computes exploration function.
         Return a value based on the counts
 
-        HINT: Do a greed-pick or a least-pick
-
         Args:
             utility: expected utility for taking some action a in some given state s
             counts: counts for having taken visited
@@ -260,9 +261,6 @@ class QLearnAgent(Agent):
         Returns:
             The exploration value
         """
-
-        #TODO: confirm with Cora
-        #Maybe put these parameters as attributes of the Agent class?
 
         if counts < self.exploration_boundary:
             return self.optimistic_reward
@@ -276,9 +274,6 @@ class QLearnAgent(Agent):
         Choose an action to take to maximise reward while
         balancing gathering data for learning
 
-        If you wish to use epsilon-greedy exploration, implement it in this method.
-        HINT: look at pacman_utils.util.flipCoin
-
         Args:
             state: the current state
 
@@ -286,26 +281,52 @@ class QLearnAgent(Agent):
             The action to take
         """
 
-        # TODO: Initialise state action pairs to self.q_values if we have not encountered that state yet
-
         # The data we have about the state of the game
         legal = state.getLegalPacmanActions()
         if Directions.STOP in legal:
             legal.remove(Directions.STOP)
 
+        stateFeatures = GameStateFeatures(state)
+
+
+        # Initialise state action pairs of self.q_values if we have not encountered that state yet
+
+        if self.q_values.get(hash(stateFeatures)) == None:
+            self.q_values[hash(stateFeatures)] = {}
+            for action in legal:
+                self.q_values[hash(stateFeatures)][str(action)] = (0, 0)
+
+
+        # learn
+        if self.previous_action != None:
+            reward = self.computeReward(self.previous_state, state)
+            self.learn(GameStateFeatures(self.previous_state), self.previous_action, reward, stateFeatures)
+
         # logging to help you understand the inputs, feel free to remove
-        print("Legal moves: ", legal)
+        '''print("Legal moves: ", legal)
         print("Pacman position: ", state.getPacmanPosition())
         print("Ghost positions:", state.getGhostPositions())
         print("Food locations: ")
         print(state.getFood())
-        print("Score: ", state.getScore())
+        print("Score: ", state.getScore())'''
 
-        stateFeatures = GameStateFeatures(state)
 
-        # Now pick what action to take.
-        # The current code shows how to do that but just makes the choice randomly.
-        return random.choice(legal)
+        state_q_values = self.q_values[hash(stateFeatures)]
+
+        action_returned = random.choice(legal)
+        maximum = self.explorationFn (state_q_values[str(action_returned)][0], state_q_values[str(action_returned)][1])
+        
+        for action in legal:
+            exploration_value = self.explorationFn (state_q_values[str(action)][0], state_q_values[str(action)][1])
+            if maximum < exploration_value:
+                maximum = exploration_value
+                action_returned = action
+
+
+        self.previous_state = state
+        self.previous_action = action_returned
+
+        return action_returned
 
     def final(self, state: GameState):
         """
